@@ -1,0 +1,127 @@
+import os
+import shutil
+from datetime import datetime
+from docx import Document
+
+# Function to create 'Previous Versions' directory if it doesn't exist
+def create_previous_versions_folder(base_path):
+    previous_versions_path = os.path.join(base_path, 'Previous Versions')
+    if not os.path.exists(previous_versions_path):
+        os.makedirs(previous_versions_path)
+    return previous_versions_path
+
+# Function to move existing file to 'Previous Versions' folder with a timestamp
+def move_existing_file(file_path, previous_versions_path):
+    if os.path.exists(file_path):
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        base_name = os.path.basename(file_path)
+        new_name = f"{os.path.splitext(base_name)[0]}_{timestamp}{os.path.splitext(base_name)[1]}"
+        shutil.move(file_path, os.path.join(previous_versions_path, new_name))
+
+# Function to clean up older files, keeping only the 5 most recent versions
+def cleanup_old_versions(previous_versions_path):
+    files = [os.path.join(previous_versions_path, f) for f in os.listdir(previous_versions_path) if os.path.isfile(os.path.join(previous_versions_path, f))]
+    files.sort(key=os.path.getmtime, reverse=True)
+    if len(files) > 5:
+        for file in files[5:]:
+            os.remove(file)
+
+# Get the current year
+current_year = datetime.now().year
+
+# Define the heading name
+heading_name = 'Your Name Goes Here'
+
+# Create a new Document
+doc = Document()
+doc.add_heading(heading_name, 0)
+
+# Contact Information
+doc.add_paragraph('Phone Number | Email Address | LinkedIn: LinkedIn Web Address')
+
+# Professional Summary
+doc.add_heading('Professional Summary', level=1)
+doc.add_paragraph(
+    "Professional Summary Line 1"
+    "Professional Summary Line 2"
+    "Professional Summary Line 3."
+)
+
+# Skills Overview
+doc.add_heading('Skills Overview', level=1)
+skills = [
+    "Skills Line 1.",
+    "Skills Line 2.",
+    "Skills Line 3.",
+    "Skills Line 4.",
+    "Skills Line 5.",
+    "Skills Line 6.",
+    "Skills Line 7."
+]
+for skill in skills:
+    doc.add_paragraph(skill, style='List Bullet')
+
+# Professional Experience
+doc.add_heading('Professional Experience', level=1)
+experience = {
+    "Job Title, Company Name (Date From - Date To)": [
+        "Job Description Point 1.",
+        "Job Description Point 2.",
+        "Job Description Point 3.",
+        "Job Description Point 4."
+    ],
+    "Job Title Starting at with above company": [
+        "Job Description Point 1.",
+        "Job Description Point 2.",
+        "Job Description Point 3.",
+        "Job Description Point 4."
+    ],
+    "Job Title, Company Name (Date From - Date To)": [
+        "Job Description Point 1.",
+        "Job Description Point 2.",
+        "Job Description Point 3."
+    ],
+    "Job Title, Company Name (Date From - Date To)": [
+        "Job Description Point 1.",
+        "Job Description Point 2.",
+        "Job Description Point 3."
+    ],
+    "Job Title, Company Name (Date From - Date To)": [
+        "Job Description Point 1.",
+        "Job Description Point 2.",
+        "Job Description Point 3."
+    ]
+}
+for role, details in experience.items():
+    doc.add_heading(role, level=2)
+    for detail in details:
+        doc.add_paragraph(detail, style='List Bullet') #Can change from bullet style here#
+
+# Certifications
+doc.add_heading('Certifications or Awards', level=1)
+certifications = [
+    "Certification 1",
+    "Award 1"
+]
+for certification in certifications:
+    doc.add_paragraph(certification, style='List Bullet') #Can change from bullet style here#
+
+# Define base path to the user's Documents folder
+base_path = os.path.expanduser('~/Documents')
+
+# Define file path dynamically based on the heading name and current year
+file_name = f'{heading_name.replace(" ", "_")}_Resume_{current_year}.docx'
+file_path = os.path.join(base_path, file_name)
+
+# Create 'Previous Versions' folder and move existing file if it exists
+previous_versions_path = create_previous_versions_folder(base_path)
+move_existing_file(file_path, previous_versions_path)
+
+# Cleanup older versions
+cleanup_old_versions(previous_versions_path)
+
+# Save the new document
+doc.save(file_path)
+
+# Print message indicating where the file was written
+print(f"The file was written to: {file_path}")

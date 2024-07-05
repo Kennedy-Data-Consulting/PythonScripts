@@ -1,8 +1,40 @@
+import os
+import shutil
+from datetime import datetime
 from docx import Document
+
+# Function to create 'Previous Versions' directory if it doesn't exist
+def create_previous_versions_folder(base_path):
+    previous_versions_path = os.path.join(base_path, 'Previous Versions')
+    if not os.path.exists(previous_versions_path):
+        os.makedirs(previous_versions_path)
+    return previous_versions_path
+
+# Function to move existing file to 'Previous Versions' folder with a timestamp
+def move_existing_file(file_path, previous_versions_path):
+    if os.path.exists(file_path):
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        base_name = os.path.basename(file_path)
+        new_name = f"{os.path.splitext(base_name)[0]}_{timestamp}{os.path.splitext(base_name)[1]}"
+        shutil.move(file_path, os.path.join(previous_versions_path, new_name))
+
+# Function to clean up older files, keeping only the 5 most recent versions
+def cleanup_old_versions(previous_versions_path):
+    files = [os.path.join(previous_versions_path, f) for f in os.listdir(previous_versions_path) if os.path.isfile(os.path.join(previous_versions_path, f))]
+    files.sort(key=os.path.getmtime, reverse=True)
+    if len(files) > 5:
+        for file in files[5:]:
+            os.remove(file)
+
+# Get the current year
+current_year = datetime.now().year
+
+# Define the heading name
+heading_name = 'Leisha Kennedy'
 
 # Create a new Document
 doc = Document()
-doc.add_heading('Leisha Kennedy', 0)
+doc.add_heading(heading_name, 0)
 
 # Contact Information
 doc.add_paragraph('205-317-1616 | leisha.kennedy@gmail.com | LinkedIn: https://www.linkedin.com/in/leishakennedy/')
@@ -38,7 +70,7 @@ experience = {
         "Innovated new data procedures and optimizations for ETL, SSRS, and Power BI applications.",
         "Spearheaded the integration of the Snowflake platform through DBT, Airflow, and Data Factory, enhancing data scalability and access."
     ],
-    "Senior Data Engineer (Date Range)": [
+    "Senior Data Engineer": [
         "Oversaw critical ETL processes, ensuring accurate and timely data availability.",
         "Led strategic migrations and upgrades from SQL Server 2016 to 2019, minimizing downtime and maintaining data integrity.",
         "Developed and enhanced SSIS packages to support efficient data integration and automation processes.",
@@ -73,7 +105,22 @@ certifications = [
 for certification in certifications:
     doc.add_paragraph(certification, style='List Bullet')
 
-# Save the document
-file_path = '/mnt/data/Complete_Leisha_KennedyV2.docx'
+# Define base path to the user's Documents folder
+base_path = os.path.expanduser('~/Documents')
+
+# Define file path dynamically based on the heading name and current year
+file_name = f'{heading_name.replace(" ", "_")}_Resume_{current_year}.docx'
+file_path = os.path.join(base_path, file_name)
+
+# Create 'Previous Versions' folder and move existing file if it exists
+previous_versions_path = create_previous_versions_folder(base_path)
+move_existing_file(file_path, previous_versions_path)
+
+# Cleanup older versions
+cleanup_old_versions(previous_versions_path)
+
+# Save the new document
 doc.save(file_path)
-file_path
+
+# Print message indicating where the file was written
+print(f"The file was written to: {file_path}")
