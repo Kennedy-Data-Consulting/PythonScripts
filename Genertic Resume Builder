@@ -36,87 +36,90 @@ def cleanup_old_versions(previous_versions_path):
         print(f"Error cleaning up old versions: {e}")
         raise
 
-# Get the current year
-current_year = datetime.now().year
+try:
+    # Get the current year
+    current_year = datetime.now().year
 
-# Define the heading name
-heading_name = 'Your Name Goes Here'
+    # Define the heading name
+    heading_name = 'Your Name Goes Here'
 
-# Create a new Document
-doc = Document()
-doc.add_heading(heading_name, 0)
+    # Create a new Document
+    doc = Document()
+    doc.add_heading(heading_name, 0)
 
-# Contact Information
-doc.add_paragraph('Phone Number | Email Address | LinkedIn: LinkedIn Web Address')
+    # Contact Information
+    doc.add_paragraph('Phone Number | Email Address | LinkedIn: LinkedIn Web Address')
 
-# Professional Summary
-doc.add_heading('Professional Summary', level=1)
-doc.add_paragraph(
-    "Professional Summary Line 1"
-    "Professional Summary Line 2"
-    "Professional Summary Line 3."
-)
+    # Professional Summary
+    doc.add_heading('Professional Summary', level=1)
+    doc.add_paragraph(
+        "Professional Summary Line 1 "
+        "Professional Summary Line 2 "
+        "Professional Summary Line 3."
+    )
 
-# Skills Overview
-doc.add_heading('Skills Overview', level=1)
-skills = [
-    "Skills Line 1.",
-    "Skills Line 2.",
-    "Skills Line 3.",
-    "Skills Line 4.",
-    "Skills Line 5.",
-    "Skills Line 6.",
-    "Skills Line 7."
-]
-for skill in skills:
-    doc.add_paragraph(skill, style='List Bullet')
-
-# Professional Experience
-doc.add_heading('Professional Experience', level=1)
-experience = {
-    "Job Title, Company Name (Date From - Date To)": [
-        "Job Description Point 1.",
-        "Job Description Point 2.",
-        "Job Description Point 3.",
-        "Job Description Point 4."
-    ],
-    "Job Title Starting at with above company": [
-        "Job Description Point 1.",
-        "Job Description Point 2.",
-        "Job Description Point 3.",
-        "Job Description Point 4."
-    ],
-    "Job Title, Company Name (Date From - Date To)": [
-        "Job Description Point 1.",
-        "Job Description Point 2.",
-        "Job Description Point 3."
-    ],
-    "Job Title, Company Name (Date From - Date To)": [
-        "Job Description Point 1.",
-        "Job Description Point 2.",
-        "Job Description Point 3."
-    ],
-    "Job Title, Company Name (Date From - Date To)": [
-        "Job Description Point 1.",
-        "Job Description Point 2.",
-        "Job Description Point 3."
+    # Skills Overview
+    doc.add_heading('Skills Overview', level=1)
+    skills = [
+        "Skills Line 1.",
+        "Skills Line 2.",
+        "Skills Line 3.",
+        "Skills Line 4.",
+        "Skills Line 5.",
+        "Skills Line 6.",
+        "Skills Line 7."
     ]
-}
-for role, details in experience.items():
-    doc.add_heading(role, level=2)
-    for detail in details:
-        doc.add_paragraph(detail, style='List Bullet') #Can change from bullet style here#
+    for skill in skills:
+        doc.add_paragraph(skill, style='List Bullet')
 
-# Certifications
-doc.add_heading('Certifications or Awards', level=1)
-certifications = [
-    "Certification 1",
-    "Award 1"
-]
-for certification in certifications:
-    doc.add_paragraph(certification, style='List Bullet') #Can change from bullet style here#
+    # Professional Experience
+    doc.add_heading('Professional Experience', level=1)
+    experience = {
+        "Job Title, Company Name 1 (Date From - Date To)": [
+            "Job Description Point 1.",
+            "Job Description Point 2.",
+            "Job Description Point 3.",
+            "Job Description Point 4."
+        ],
+        "Job Title Starting at with above company 1": [
+            "Job Description Point 1.",
+            "Job Description Point 2.",
+            "Job Description Point 3.",
+            "Job Description Point 4."
+        ],
+        "Job Title, Company Name 2 (Date From - Date To)": [
+            "Job Description Point 1.",
+            "Job Description Point 2.",
+            "Job Description Point 3."
+        ],
+        "Job Title, Company Name 3 (Date From - Date To)": [
+            "Job Description Point 1.",
+            "Job Description Point 2.",
+            "Job Description Point 3."
+        ],
+        "Job Title, Company Name 4 (Date From - Date To)": [
+            "Job Description Point 1.",
+            "Job Description Point 2.",
+            "Job Description Point 3."
+        ]
+    }
+    for role, details in experience.items():
+        if "Date Range" in role:
+            role = role.replace(" (Date Range)", "")
+        doc.add_heading(role, level=2)
+        for detail in details:
+            doc.add_paragraph(detail, style='List Bullet') # Can change from bullet style here #
 
-   # Define base path to the user's Documents folder
+    # Certifications
+    doc.add_heading('Certifications or Awards', level=1)
+    certifications = [
+        "Certification 1",
+        "Award 1"
+    ]
+    for certification in certifications:
+        doc.add_paragraph(certification, style='List Bullet') # Can change from bullet style here #
+
+    # Define base path to the user's Documents folder
     documents_path = os.path.expanduser('~/Documents')
     resume_folder = os.path.join(documents_path, 'Resume')
 
@@ -144,4 +147,3 @@ for certification in certifications:
 
 except Exception as e:
     print(f"An error occurred: {e}")
-
