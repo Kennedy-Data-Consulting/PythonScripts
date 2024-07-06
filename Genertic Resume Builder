@@ -3,28 +3,38 @@ import shutil
 from datetime import datetime
 from docx import Document
 
-# Function to create 'Previous Versions' directory if it doesn't exist
-def create_previous_versions_folder(base_path):
-    previous_versions_path = os.path.join(base_path, 'Previous Versions')
-    if not os.path.exists(previous_versions_path):
-        os.makedirs(previous_versions_path)
-    return previous_versions_path
+# Function to create directory if it doesn't exist
+def create_directory(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except Exception as e:
+        print(f"Error creating directory {path}: {e}")
+        raise
 
 # Function to move existing file to 'Previous Versions' folder with a timestamp
 def move_existing_file(file_path, previous_versions_path):
-    if os.path.exists(file_path):
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        base_name = os.path.basename(file_path)
-        new_name = f"{os.path.splitext(base_name)[0]}_{timestamp}{os.path.splitext(base_name)[1]}"
-        shutil.move(file_path, os.path.join(previous_versions_path, new_name))
+    try:
+        if os.path.exists(file_path):
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            base_name = os.path.basename(file_path)
+            new_name = f"{os.path.splitext(base_name)[0]}_{timestamp}{os.path.splitext(base_name)[1]}"
+            shutil.move(file_path, os.path.join(previous_versions_path, new_name))
+    except Exception as e:
+        print(f"Error moving existing file: {e}")
+        raise
 
 # Function to clean up older files, keeping only the 5 most recent versions
 def cleanup_old_versions(previous_versions_path):
-    files = [os.path.join(previous_versions_path, f) for f in os.listdir(previous_versions_path) if os.path.isfile(os.path.join(previous_versions_path, f))]
-    files.sort(key=os.path.getmtime, reverse=True)
-    if len(files) > 5:
-        for file in files[5:]:
-            os.remove(file)
+    try:
+        files = [os.path.join(previous_versions_path, f) for f in os.listdir(previous_versions_path) if os.path.isfile(os.path.join(previous_versions_path, f))]
+        files.sort(key=os.path.getmtime, reverse=True)
+        if len(files) > 5:
+            for file in files[5:]:
+                os.remove(file)
+    except Exception as e:
+        print(f"Error cleaning up old versions: {e}")
+        raise
 
 # Get the current year
 current_year = datetime.now().year
@@ -106,22 +116,32 @@ certifications = [
 for certification in certifications:
     doc.add_paragraph(certification, style='List Bullet') #Can change from bullet style here#
 
-# Define base path to the user's Documents folder
-base_path = os.path.expanduser('~/Documents')
+   # Define base path to the user's Documents folder
+    documents_path = os.path.expanduser('~/Documents')
+    resume_folder = os.path.join(documents_path, 'Resume')
 
-# Define file path dynamically based on the heading name and current year
-file_name = f'{heading_name.replace(" ", "_")}_Resume_{current_year}.docx'
-file_path = os.path.join(base_path, file_name)
+    # Create 'Resume' and 'Previous Versions' folders if they don't exist
+    create_directory(resume_folder)
+    previous_versions_path = os.path.join(resume_folder, 'Previous Versions')
+    create_directory(previous_versions_path)
 
-# Create 'Previous Versions' folder and move existing file if it exists
-previous_versions_path = create_previous_versions_folder(base_path)
-move_existing_file(file_path, previous_versions_path)
+    # Define file path dynamically based on the heading name and current year
+    file_name = f'{heading_name.replace(" ", "_")}_Resume_{current_year}.docx'
+    file_path = os.path.join(resume_folder, file_name)
 
-# Cleanup older versions
-cleanup_old_versions(previous_versions_path)
+    # Move existing file if it exists
+    if os.path.exists(file_path):
+        move_existing_file(file_path, previous_versions_path)
 
-# Save the new document
-doc.save(file_path)
+    # Cleanup older versions
+    cleanup_old_versions(previous_versions_path)
 
-# Print message indicating where the file was written
-print(f"The file was written to: {file_path}")
+    # Save the new document
+    doc.save(file_path)
+
+    # Print message indicating where the file was written
+    print(f"The file was written to: {file_path}")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+
