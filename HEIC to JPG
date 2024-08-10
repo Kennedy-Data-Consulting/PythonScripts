@@ -1,0 +1,32 @@
+import os
+from PIL import Image
+import imageio.v2 as imageio
+import pillow_heif
+
+# Register the HEIF plugin
+pillow_heif.register_heif_opener()
+
+# Define directories
+heic_dir = "C:\\HEIC\\"
+jpeg_dir = "C:\\JPG\\"
+
+# Ensure the output directory exists
+os.makedirs(jpeg_dir, exist_ok=True)
+
+# Loop through all files in the HEIC directory
+for filename in os.listdir(heic_dir):
+    if filename.lower().endswith(".heic"):
+        heic_image_path = os.path.join(heic_dir, filename)
+        jpeg_image_path = os.path.join(jpeg_dir, os.path.splitext(filename)[0] + ".jpg")
+
+        try:
+            # Open the HEIC image using pillow_heif
+            image = Image.open(heic_image_path)
+            # Convert and save as JPEG
+            image = image.convert("RGB")
+            image.save(jpeg_image_path, "JPEG")
+            print(f"Converted {filename} to JPEG.")
+        except Exception as e:
+            print(f"Failed to convert {filename}: {e}")
+
+print("Conversion process completed.")
